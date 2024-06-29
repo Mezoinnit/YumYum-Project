@@ -14,5 +14,5 @@ val buttonTopPadding = 12.dp
 val cardHeight = 350.dp
 
 //button
-val buttonWidth = 50.dp
-val buttonHeight = 50.dp
+val buttonWidth = 55.dp
+val buttonHeight = 40.dp

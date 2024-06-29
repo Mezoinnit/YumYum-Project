@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,8 +30,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.yumyum.ViewModel.YumViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.yumyum.model.YumData
+import com.example.yumyum.model.yumList
 import com.example.yumyum.presentation.dimenstions.bodyPadding
 import com.example.yumyum.presentation.dimenstions.buttonHeight
 import com.example.yumyum.presentation.dimenstions.buttonTopPadding
@@ -59,11 +63,7 @@ fun TopAppBar(@StringRes title: Int) {
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun MainContent(vm: YumViewModel = viewModel(), modifier: Modifier) {
-    val yumName = vm.yumName()
-    val yumPrice = vm.yumPrice()
-    val total = vm.totalAmount()
-    val rnd = String.format("%.2f", total)
+fun MainContent(modifier: Modifier, yumList: List<YumData>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -87,43 +87,54 @@ fun MainContent(vm: YumViewModel = viewModel(), modifier: Modifier) {
                     .padding(bodyPadding)
             ) {
                 Text(text = "Menu", style = MaterialTheme.typography.titleLarge)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Text(text = yumName)
-                    Text(text = "$$yumPrice")
-                }
-                Row {
-                    Button(
-                        onClick = { if (vm.quantity.intValue > 0) vm.quantity.intValue-- else vm.quantity.intValue },
-                        modifier = Modifier
-                            .width(buttonWidth - 60.dp)
-                            .height(buttonHeight)
-                    ) {
-                        Text(text = "-")
+                LazyColumn() {
+                    items(yumList) {
+                        MenuList(data = it)
                     }
-                    Button(
-                        onClick = { vm.quantity.intValue++ },
-                        modifier = Modifier
-                            .padding(start = buttonTopPadding)
-                            .width(buttonWidth - 60.dp)
-                            .height(buttonHeight)
-                    ) {
-                        Text(text = "+")
-                    }
-                }
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(text = "Total: ${vm.quantity.intValue}")
-                    Text(text = "$$rnd")
 
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun MenuList(data: YumData) {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = data.name)
+            Text(text = "$${String.format("%.2f", data.totalPrice.value)}")
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row {
+                Button(
+                    onClick = { if (data.quantity.value > 0) data.quantity.value-- else data.quantity.value },
+                    modifier = Modifier
+                        .width(buttonWidth)
+                        .height(buttonHeight)
+                ) {
+                    Text(text = "-")
+                }
+                Button(
+                    onClick = { data.quantity.value++ },
+                    modifier = Modifier
+                        .padding(start = buttonTopPadding)
+                        .width(buttonWidth)
+                        .height(buttonHeight)
+                ) {
+                    Text(text = "+")
+                }
+            }
+            Text(text = "${data.quantity.value}")
         }
     }
 }

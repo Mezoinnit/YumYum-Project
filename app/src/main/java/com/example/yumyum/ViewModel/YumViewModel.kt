@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.yumyum.model.YumData
 import com.example.yumyum.model.yumList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,28 +16,31 @@ import kotlin.math.roundToLong
 
 class YumViewModel: ViewModel() {
 
-    private val yumState = MutableStateFlow(yumList)
+    private val yumcontent = MutableStateFlow(yumList())
+
+    val yumDataList = yumcontent.asStateFlow()
 
     private var count = mutableIntStateOf(0)
 
-    var quantity = mutableIntStateOf(0)
+    private var totalQuantity = mutableIntStateOf(0)
+    private var totalPrice = mutableDoubleStateOf(0.0)
 
     fun yumLogic(){
-
         viewModelScope.launch(Dispatchers.IO) {
-            if (count.intValue < yumState.value.size - 1) count.intValue++ else count.intValue = 0
+            yumPriceLogic()
+            yumQuantityLogic()
         }
     }
 
-    fun yumName(): String{
-        return yumState.value[count.intValue].name
+    fun yumQuantityLogic(): Int {
+        var y = yumcontent.value[0].quantity.value
+        return totalQuantity.intValue
     }
-    fun yumPrice(): Double{
-        return yumState.value[count.intValue].price
-    }
-
-    fun totalAmount(): Double{
-        return yumPrice().times(quantity.intValue)
+    fun yumPriceLogic(): Double {
+        for(x in 0 until yumcontent.value.size){
+            totalPrice.doubleValue = yumcontent.value[x].price.times(yumcontent.value[x].quantity.value)
+        }
+        return totalPrice.doubleValue
     }
 
 }
